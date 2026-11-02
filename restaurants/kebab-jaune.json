@@ -1,0 +1,64 @@
+{
+  "_source": "Carte reprise de melyas web/components/demos/kebab-charte.ts (affiches du patron, 2026-09-26). Prix en euros ici, convertis en centimes par scripts/seed.mjs. Tacos : prix inconnu, 8 € provisoires comme la démo. La bière n'est pas vendue en ligne (décision du patron, 2026-09-27).",
+
+  "restaurant": {
+    "id": "kebab-jaune",
+    "nom": "Le Kebab Jaune",
+    "fuseau": "Europe/Paris",
+    "delai_min": 15,
+    "modes": ["emporter"],
+    "origines": ["https://modeles.melyas.fr", "http://localhost:3000"],
+    "telegram_chat": null
+  },
+
+  "horaires": [{ "jours": [0, 1, 2, 3, 4, 5, 6], "debut": "11:00", "fin": "23:00" }],
+
+  "groupes": {
+    "sauce": { "titre": "Sauce", "valeurs": ["Blanche", "Algérienne", "Barbecue", "Ketchup", "Moutarde", "Piquante"] },
+    "viande": { "titre": "Viande", "valeurs": ["Viande kebab", "Kofte", "Escalope"] },
+    "formule": { "titre": "Formule", "valeurs": [{ "v": "Seul" }, { "v": "Menu frites + boisson", "sup": 2 }] },
+    "boisson_menu": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite"], "si": { "cle": "formule", "v": "Menu frites + boisson" } },
+    "boisson_enfant": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite"] },
+    "type_etudiant": { "titre": "Kebab ou tacos", "valeurs": ["Kebab", "Tacos"] },
+    "canette": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite"] },
+    "bouteille_50": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite", "Ice Tea pêche"] },
+    "grande_bouteille": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Coca-Cola zéro", "Fanta", "Sprite", "Ice Tea pêche", "Evian", "Perrier"] }
+  },
+
+  "plats": [
+    { "id": "kebab", "nom": "Kebab", "prix": 8, "choix": ["sauce", "formule", "boisson_menu"] },
+    { "id": "galette", "nom": "Galette", "prix": 8, "choix": ["sauce", "formule", "boisson_menu"] },
+    { "id": "tacos", "nom": "Tacos", "prix": 8, "choix": ["viande", "sauce", "formule", "boisson_menu"] },
+    { "id": "kofte", "nom": "Kofte", "prix": 8, "choix": ["sauce", "formule", "boisson_menu"] },
+    { "id": "americain", "nom": "Américain", "prix": 8, "choix": ["sauce", "formule", "boisson_menu"] },
+    { "id": "berliner", "nom": "Kebab Berliner", "prix": 9, "choix": ["sauce", "formule", "boisson_menu"] },
+    { "id": "americain-cheese", "nom": "Américain cheese", "prix": 9, "choix": ["sauce", "formule", "boisson_menu"] },
+    { "id": "hamburger", "nom": "Hamburger", "prix": 6, "choix": ["formule", "boisson_menu"] },
+    { "id": "etudiant", "nom": "Menu étudiant", "prix": 8, "choix": ["type_etudiant", "viande", "sauce"], "fenetre": ["11:00", "13:30"] },
+
+    { "id": "assiette-kebab", "nom": "Assiette kebab", "prix": 12, "choix": ["sauce"] },
+    { "id": "assiette-kofte", "nom": "Assiette kofte", "prix": 14, "choix": ["sauce"] },
+    { "id": "assiette-escalopes", "nom": "Assiette escalopes", "prix": 14, "choix": ["sauce"] },
+
+    { "id": "riz-crousty", "nom": "Riz crousty", "prix": 8 },
+    { "id": "boulgour-crousty", "nom": "Boulgour crousty", "prix": 8 },
+    { "id": "pates-crousty", "nom": "Pâtes crousty", "prix": 8 },
+    { "id": "bol-riz", "nom": "Bol de riz", "prix": 4 },
+    { "id": "bol-boulgour", "nom": "Bol de boulgour", "prix": 4 },
+    { "id": "bol-pates", "nom": "Bol de pâtes", "prix": 4 },
+
+    { "id": "salade-feta", "nom": "Salade feta", "prix": 5 },
+    { "id": "salade-thon", "nom": "Salade thon", "prix": 5 },
+
+    { "id": "menu-enfant", "nom": "Menu enfant", "prix": 7.5, "choix": ["boisson_enfant"] },
+
+    { "id": "tiramisu", "nom": "Tiramisu", "prix": 4 },
+    { "id": "tarte-daim", "nom": "Tarte au Daim", "prix": 4 },
+    { "id": "fondant", "nom": "Fondant au chocolat", "prix": 4 },
+
+    { "id": "canette", "nom": "Canette 33 cl", "prix": 2, "choix": ["canette"] },
+    { "id": "bouteille-50", "nom": "Bouteille 50 cl", "prix": 2.5, "choix": ["bouteille_50"] },
+    { "id": "redbull", "nom": "Red Bull", "prix": 2.5 },
+    { "id": "grande-bouteille", "nom": "Grande bouteille", "prix": 4, "choix": ["grande_bouteille"] }
+  ]
+}

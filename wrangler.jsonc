@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // MOTEUR DE COMMANDE MELYAS : un seul Worker pour tous les restaurants.
+  // Chaque ligne en base porte un `restaurant_id` ; un nouveau restaurant,
+  // c'est une ligne et une carte (restaurants/*.json), pas de nouveau code.
+  //
+  // Compte Cloudflare de MELYAS, le même que l'outil (melyas web).
+  // Avant CHAQUE déploiement : `npx wrangler whoami` et vérifier le compte.
+  "name": "melyas-commande",
+  "account_id": "9030a09d9a4ab871c6e49bb0b0d01a01",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+
+  // ⚠️ `database_id` provisoire : la base distante n'est PAS encore créée.
+  // En local, wrangler s'en passe. Avant le premier déploiement :
+  //   npx wrangler d1 create melyas-commande   → recopier l'id ici
+  //   npx wrangler d1 migrations apply melyas-commande --remote
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "melyas-commande",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+
+  // Secrets (jamais dans ce fichier, jamais dans le navigateur) :
+  //   TELEGRAM_TOKEN            jeton du bot, donné par @BotFather
+  //   TELEGRAM_WEBHOOK_SECRET   chaîne au hasard, vérifiée à chaque appel de Telegram
+  //   TURNSTILE_SECRET          clé secrète du widget anti-robot
+  // En local : fichier .dev.vars (ignoré par git), voir .dev.vars.example.
+}

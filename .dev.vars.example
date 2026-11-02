@@ -1,0 +1,8 @@
+# Copier en .dev.vars pour `npm run dev`. Ce fichier-ci ne contient aucun vrai secret.
+
+# Clé de test officielle de Cloudflare : Turnstile répond toujours « humain ».
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+
+# Laissés vides, les alertes Telegram sont écrites dans la console au lieu d'être envoyées.
+TELEGRAM_TOKEN=
+TELEGRAM_WEBHOOK_SECRET=
