@@ -31,7 +31,7 @@ export type Restaurant = {
 };
 
 /* Limites contre les fausses commandes : au-delà, on renvoie vers le téléphone. */
-const PAR_IP = { nombre: 3, fenetre: 10 * 60_000 };
+const PAR_IP = { nombre: 15, fenetre: 10 * 60_000 }; // large : en 4G, beaucoup de clients partagent la même IP
 const PAR_TEL = { nombre: 3, fenetre: 60 * 60_000 };
 
 /* Le message que le client lit : il dit quoi faire, jamais « erreur 400 ». */
@@ -145,15 +145,22 @@ export async function creerCommande(req: Request, env: Env, ctx: ExecutionContex
   if (!calcul.ok) return refus('panier', 409, cors, calcul.erreur);
 
   /* Le numéro suit le dernier du restaurant, dans la même requête : deux commandes
-     simultanées ne peuvent pas prendre le même (UNIQUE restaurant_id, numero). */
+     simultanées ne peuvent pas prendre le même (UNIQUE restaurant_id, numero).
+     Les limites sont recomptées dans cette même requête : le comptage plus haut ne suffit
+     pas quand vingt envois arrivent à la même milliseconde. */
   const jeton = crypto.randomUUID().replaceAll('-', '');
   let cree: { id: number; numero: number } | null = null;
   try {
     cree = await env.DB.prepare(
       `INSERT INTO commandes (restaurant_id, numero, jeton, cle, nom, tel, mode, pour, lignes, total, ip, cree_le)
-       SELECT ?1, COALESCE(MAX(numero), 1000) + 1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11 FROM commandes WHERE restaurant_id = ?1
+       SELECT * FROM (
+         SELECT ?1, COALESCE(MAX(numero), 1000) + 1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11 FROM commandes WHERE restaurant_id = ?1
+       )
+       WHERE (SELECT COUNT(*) FROM commandes WHERE restaurant_id = ?1 AND ip = ?10 AND cree_le > ?12) < ?13
+         AND (SELECT COUNT(*) FROM commandes WHERE restaurant_id = ?1 AND tel = ?5 AND cree_le > ?14) < ?15
        RETURNING id, numero`,
-    ).bind(resto.id, jeton, cle, nom, tel, mode, creneau.pour, JSON.stringify(calcul.lignes), calcul.total, ipH, maintenant)
+    ).bind(resto.id, jeton, cle, nom, tel, mode, creneau.pour, JSON.stringify(calcul.lignes), calcul.total, ipH, maintenant,
+      maintenant - PAR_IP.fenetre, PAR_IP.nombre, maintenant - PAR_TEL.fenetre, PAR_TEL.nombre)
       .first<{ id: number; numero: number }>();
   } catch (e) {
     /* Deux clics partis en même temps : le second bute sur la clé unique, on renvoie le premier. */
@@ -162,7 +169,7 @@ export async function creerCommande(req: Request, env: Env, ctx: ExecutionContex
     if (premier) return reponse({ ok: true, ...premier }, 200, cors);
     throw e;
   }
-  if (!cree) throw new Error('insertion sans retour');
+  if (!cree) return refus('limite', 429, cors); // une limite atteinte entre le comptage et l'insertion
 
   /* L'alerte part après la réponse : le client n'attend pas Telegram. */
   ctx.waitUntil(

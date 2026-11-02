@@ -8,6 +8,7 @@
     "dev": "wrangler dev",
     "test": "vitest run",
     "types": "tsc --noEmit",
+    "charge": "node scripts/charge.mjs",
     "db:local": "wrangler d1 migrations apply melyas-commande --local && node scripts/seed.mjs restaurants/kebab-jaune.json > .wrangler/seed.sql && wrangler d1 execute melyas-commande --local --file .wrangler/seed.sql"
   },
   "devDependencies": {
