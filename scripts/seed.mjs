@@ -11,7 +11,13 @@ if (!fichier) {
   console.error('Usage : node scripts/seed.mjs restaurants/<id>.json');
   process.exit(1);
 }
-const carte = JSON.parse(readFileSync(fichier, 'utf8'));
+let carte = JSON.parse(readFileSync(fichier, 'utf8'));
+/* `"carte": "autre.json"` reprend les horaires, groupes et plats d'un autre restaurant
+   (la démo des rendez-vous reprend ceux du Kebab Jaune) ; seule la fiche change. */
+if (carte.carte) {
+  const base = JSON.parse(readFileSync(new URL(carte.carte, new URL(fichier, `file:///${process.cwd()}/`)), 'utf8'));
+  carte = { ...base, restaurant: carte.restaurant };
+}
 const r = carte.restaurant;
 
 const q = (v) => (v === null || v === undefined ? 'NULL' : typeof v === 'number' ? String(v) : `'${String(v).replaceAll("'", "''")}'`);

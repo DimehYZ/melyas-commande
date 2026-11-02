@@ -1,0 +1,15 @@
+{
+  "_source": "Restaurant de démonstration pour les rendez-vous : la carte du Kebab Jaune, mais les alertes vont au Telegram de Mehdi, pas au restaurant. Branché sur modeles.melyas.fr/demos/kebab/ (et outil.melyas.fr, qui sert la même page).",
+
+  "carte": "kebab-jaune.json",
+
+  "restaurant": {
+    "id": "demo-kebab",
+    "nom": "Démo MELYAS (Le Kebab Jaune)",
+    "fuseau": "Europe/Paris",
+    "delai_min": 15,
+    "modes": ["emporter"],
+    "origines": ["https://modeles.melyas.fr", "https://outil.melyas.fr", "http://localhost:3000"],
+    "telegram_chat": "6220688777"
+  }
+}
