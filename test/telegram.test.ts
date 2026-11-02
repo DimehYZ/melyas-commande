@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { normaliserTel } from '../src/commandes';
-import { texteAlerte } from '../src/telegram';
+import { boutons, preteVers, texteAlerte } from '../src/telegram';
+
+describe('boutons et heure de retrait', () => {
+  it('propose des durées pour « dès que possible », un seul Accepter pour une commande programmée', () => {
+    const asap = boutons(7, null).inline_keyboard.flat().map((b) => b.callback_data);
+    expect(asap).toEqual(['ok:7:10', 'ok:7:20', 'ok:7:30', 'non:7']);
+    expect(boutons(7, 123).inline_keyboard.flat().map((b) => b.callback_data)).toEqual(['ok:7', 'non:7']);
+  });
+  it('calcule l’heure où la commande sera prête', () => {
+    const t = Date.parse('2026-11-02T18:00:00Z');
+    expect(preteVers(null, 20, t, 15)).toBe(t + 20 * 60_000);
+    expect(preteVers(null, null, t, 15)).toBe(t + 15 * 60_000); // vieille alerte sans durée
+    expect(preteVers(t + 3_600_000, 10, t, 15)).toBe(t + 3_600_000); // programmée : l'heure du client
+  });
+});
 
 describe('texteAlerte', () => {
   const maintenant = Date.parse('2026-11-02T18:00:00Z'); // 19h à Paris

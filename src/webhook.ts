@@ -12,7 +12,7 @@
    ========================================================= */
 
 import type { Env } from './commandes';
-import { telegram } from './telegram';
+import { heureSouhaitee, preteVers, telegram } from './telegram';
 
 const ISSUES: Record<string, { statut: string; texte: string }> = {
   ok: { statut: 'acceptee', texte: '✅ Acceptée' },
@@ -34,24 +34,29 @@ export async function webhookTelegram(req: Request, env: Env): Promise<Response>
     return new Response('ok');
   }
 
+  /* `ok:<id>:<minutes>`, `ok:<id>` (commande programmée) ou `non:<id>`. */
   const clic = maj?.callback_query;
-  const [action, idBrut] = String(clic?.data ?? '').split(':');
+  const [action, idBrut, minutesBrut] = String(clic?.data ?? '').split(':');
   const issue = ISSUES[action];
   if (!clic || !issue || !/^\d+$/.test(idBrut ?? '')) return new Response('ok');
+  const minutes = /^\d{1,3}$/.test(minutesBrut ?? '') ? Math.min(Number(minutesBrut), 180) : null;
 
   /* Le clic doit venir de LA conversation du restaurant de cette commande. */
   const chat = String(clic.message?.chat?.id ?? '');
   const c = await env.DB.prepare(
-    `SELECT c.id, c.numero, c.statut FROM commandes c JOIN restaurants r ON r.id = c.restaurant_id
+    `SELECT c.id, c.numero, c.statut, c.pour, r.delai_min, r.fuseau FROM commandes c JOIN restaurants r ON r.id = c.restaurant_id
      WHERE c.id = ? AND r.telegram_chat = ?`,
-  ).bind(Number(idBrut), chat).first<{ id: number; numero: number; statut: string }>();
+  ).bind(Number(idBrut), chat).first<{ id: number; numero: number; statut: string; pour: number | null; delai_min: number; fuseau: string }>();
   if (!c) {
     await telegram(env.TELEGRAM_TOKEN, 'answerCallbackQuery', { callback_query_id: clic.id, text: 'Commande introuvable.' });
     return new Response('ok');
   }
 
   /* Seule une commande encore « nouvelle » change : deux équipiers qui cliquent, le premier gagne. */
-  const fait = await env.DB.prepare(`UPDATE commandes SET statut = ? WHERE id = ? AND statut = 'nouvelle'`).bind(issue.statut, c.id).run();
+  const maintenant = Date.now();
+  const prete = issue.statut === 'acceptee' ? preteVers(c.pour, minutes, maintenant, c.delai_min) : null;
+  const fait = await env.DB.prepare(`UPDATE commandes SET statut = ?, prete_vers = ? WHERE id = ? AND statut = 'nouvelle'`)
+    .bind(issue.statut, prete, c.id).run();
   if (!fait.meta.changes) {
     const deja = Object.values(ISSUES).find((i) => i.statut === c.statut)?.texte ?? c.statut;
     await telegram(env.TELEGRAM_TOKEN, 'answerCallbackQuery', { callback_query_id: clic.id, text: `Déjà traitée : ${deja}.` });
@@ -59,13 +64,16 @@ export async function webhookTelegram(req: Request, env: Env): Promise<Response>
   }
 
   const qui = clic.from?.first_name ? ` par ${clic.from.first_name}` : '';
-  const heure = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).format(new Date());
+  const heure = heureSouhaitee(maintenant, maintenant, c.fuseau);
+  const pourQuand = prete !== null ? `, prête vers ${heureSouhaitee(prete, maintenant, c.fuseau)}` : '';
   await telegram(env.TELEGRAM_TOKEN, 'editMessageText', {
     chat_id: chat,
     message_id: clic.message.message_id,
     /* Le texte reçu par le webhook a perdu son gras : on le réécrit tel quel, avec la réponse dessous. */
-    text: `${clic.message.text}\n\n${issue.texte}${qui} à ${heure.replace(':', 'h')}`,
+    text: `${clic.message.text}\n\n${issue.texte}${qui} à ${heure}${pourQuand}`,
   });
-  await telegram(env.TELEGRAM_TOKEN, 'answerCallbackQuery', { callback_query_id: clic.id, text: `Commande #${c.numero} : ${issue.texte}` });
+  await telegram(env.TELEGRAM_TOKEN, 'answerCallbackQuery', {
+    callback_query_id: clic.id, text: `Commande #${c.numero} : ${issue.texte}${pourQuand}. Le client le voit sur son téléphone.`,
+  });
   return new Response('ok');
 }

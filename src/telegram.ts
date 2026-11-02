@@ -59,12 +59,23 @@ export function texteAlerte(c: Alerte, maintenant: number, fuseau: string): stri
   ].join('\n');
 }
 
-export const boutons = (id: number) => ({
-  inline_keyboard: [[
-    { text: '✅ Accepter', callback_data: `ok:${id}` },
-    { text: '❌ Refuser', callback_data: `non:${id}` },
-  ]],
+/* « Dès que possible » : le restaurant dit dans combien de temps c'est prêt, en un clic.
+   Programmée : l'heure est celle du client, un seul Accepter suffit. */
+export const DUREES = [10, 20, 30];
+
+export const boutons = (id: number, pour: number | null) => ({
+  inline_keyboard:
+    pour === null
+      ? [DUREES.map((m) => ({ text: `✅ ${m} min`, callback_data: `ok:${id}:${m}` })), [{ text: '❌ Refuser', callback_data: `non:${id}` }]]
+      : [[{ text: '✅ Accepter', callback_data: `ok:${id}` }, { text: '❌ Refuser', callback_data: `non:${id}` }]],
 });
+
+/** L'heure où la commande sera prête : celle du client si programmée, sinon maintenant + la durée cliquée
+    (le délai du restaurant si le bouton n'en porte pas, comme les alertes d'avant les durées). */
+export function preteVers(pour: number | null, minutes: number | null, maintenant: number, delaiMin: number): number {
+  if (pour !== null) return pour;
+  return maintenant + (minutes ?? delaiMin) * 60_000;
+}
 
 /** Appelle l'API du bot. Renvoie le `result` de Telegram, ou null en local / en cas d'échec. */
 export async function telegram(token: string | undefined, methode: string, corps: object): Promise<any> {

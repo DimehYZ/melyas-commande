@@ -79,6 +79,15 @@ async function turnstileOk(secret: string | undefined, jeton: unknown, ip: strin
   return j?.success === true;
 }
 
+/* GET /api/<restaurant>/commandes/<jeton> : la page du client l'interroge toutes les
+   quelques secondes. Le jeton secret suffit, et on ne renvoie ni nom ni téléphone. */
+export async function suivreCommande(env: Env, resto: Restaurant, jeton: string, cors: HeadersInit): Promise<Response> {
+  const c = await env.DB.prepare('SELECT numero, statut, pour, prete_vers FROM commandes WHERE restaurant_id = ? AND jeton = ?')
+    .bind(resto.id, jeton).first();
+  if (!c) return reponse({ ok: false, code: 'introuvable' }, 404, cors);
+  return reponse({ ok: true, ...c }, 200, { ...cors, 'cache-control': 'no-store' });
+}
+
 export async function creerCommande(req: Request, env: Env, ctx: ExecutionContext, resto: Restaurant, cors: HeadersInit): Promise<Response> {
   const maintenant = Date.now();
   const ip = req.headers.get('cf-connecting-ip') ?? 'local';
@@ -165,7 +174,7 @@ export async function creerCommande(req: Request, env: Env, ctx: ExecutionContex
         return;
       }
       const msg = await telegram(env.TELEGRAM_TOKEN, 'sendMessage', {
-        chat_id: resto.telegram_chat, text: texte, parse_mode: 'HTML', reply_markup: boutons(cree!.id),
+        chat_id: resto.telegram_chat, text: texte, parse_mode: 'HTML', reply_markup: boutons(cree!.id, creneau.pour),
       });
       if (msg?.message_id) await env.DB.prepare('UPDATE commandes SET telegram_msg = ? WHERE id = ?').bind(msg.message_id, cree!.id).run();
     })(),
