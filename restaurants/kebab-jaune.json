@@ -8,7 +8,7 @@
     "delai_min": 15,
     "modes": ["emporter"],
     "origines": ["https://modeles.melyas.fr", "http://localhost:3000"],
-    "telegram_chat": null
+    "telegram_chat": "6220688777"
   },
 
   "horaires": [{ "jours": [0, 1, 2, 3, 4, 5, 6], "debut": "11:00", "fin": "23:00" }],

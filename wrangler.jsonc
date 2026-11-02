@@ -12,15 +12,13 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
 
-  // ⚠️ `database_id` provisoire : la base distante n'est PAS encore créée.
-  // En local, wrangler s'en passe. Avant le premier déploiement :
-  //   npx wrangler d1 create melyas-commande   → recopier l'id ici
-  //   npx wrangler d1 migrations apply melyas-commande --remote
+  // Base créée le 2026-11-02 en Europe de l'Ouest (weur).
+  // Nouvelle migration : npx wrangler d1 migrations apply melyas-commande --remote
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "melyas-commande",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "177dc55e-3169-4336-abbc-7815d708babc",
       "migrations_dir": "migrations"
     }
   ]

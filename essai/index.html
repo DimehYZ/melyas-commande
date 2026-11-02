@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- Page d'essai du moteur : passe une vraie commande, Turnstile compris.
+     Servie sur http://localhost:3000 (origine autorisée) par essai/serveur.mjs. -->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Essai commande</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 520px; margin: 40px auto; padding: 0 16px; background: #fafafa; color: #111; }
+    button { font: inherit; padding: 12px 18px; border: 0; border-radius: 10px; background: #111; color: #fff; cursor: pointer; }
+    button:disabled { opacity: .4; cursor: default; }
+    pre { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 12px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Commande d'essai</h1>
+  <p>2 × Kebab en menu (sauce algérienne, Coca-Cola) et 1 canette de Sprite, à emporter, dès que possible.</p>
+  <div class="cf-turnstile" data-sitekey="0x4AAAAAAFw61EXF7BOJRrmk" data-callback="pret"></div>
+  <p><button id="envoyer" disabled>Envoyer la commande</button></p>
+  <pre id="reponse">En attente de la vérification anti-robot…</pre>
+  <script>
+    let jeton = null;
+    const bouton = document.getElementById('envoyer');
+    const sortie = document.getElementById('reponse');
+    window.pret = (t) => { jeton = t; bouton.disabled = false; sortie.textContent = 'Prêt.'; };
+    bouton.onclick = async () => {
+      bouton.disabled = true;
+      sortie.textContent = 'Envoi…';
+      const r = await fetch('https://melyas-commande.mehdilakhal07200.workers.dev/api/kebab-jaune/commandes', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          cle: crypto.randomUUID(), turnstile: jeton, nom: 'Essai MELYAS', tel: '06 00 00 00 01', mode: 'emporter', pour: null,
+          lignes: [
+            { plat: 'kebab', qte: 2, choix: { sauce: 'Algérienne', formule: 'Menu frites + boisson', boisson_menu: 'Coca-Cola' } },
+            { plat: 'canette', qte: 1, choix: { canette: 'Sprite' } },
+          ],
+        }),
+      });
+      sortie.textContent = r.status + '\n' + JSON.stringify(await r.json(), null, 2);
+    };
+  </script>
+</body>
+</html>
