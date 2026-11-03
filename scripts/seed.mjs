@@ -28,14 +28,17 @@ const minutes = (hhmm) => {
 };
 
 // Un groupe s'écrit court dans le JSON ("Blanche" ou { v, sup }), on le rend complet pour le serveur.
-const groupe = (cle) => {
-  const g = carte.groupes[cle];
-  if (!g) throw new Error(`Groupe inconnu : ${cle}`);
+// `"cle"` : la clé que le site envoie, quand deux groupes répondent à la même question
+// (la formule à +2 € et celle à +3 € des maxi s'appellent toutes deux « formule »).
+const groupe = (nom) => {
+  const g = carte.groupes[nom];
+  if (!g) throw new Error(`Groupe inconnu : ${nom}`);
   return {
-    cle,
+    cle: g.cle ?? nom,
     titre: g.titre,
     valeurs: g.valeurs.map((x) => (typeof x === 'string' ? { v: x } : { v: x.v, ...(x.sup ? { sup: centimes(x.sup) } : {}) })),
     ...(g.si ? { si: g.si } : {}),
+    ...(g.plusieurs ? { plusieurs: true } : {}),
   };
 };
 

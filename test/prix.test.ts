@@ -5,11 +5,17 @@ const sauce: Groupe = { cle: 'sauce', titre: 'Sauce', valeurs: [{ v: 'Blanche' }
 const formule: Groupe = { cle: 'formule', titre: 'Formule', valeurs: [{ v: 'Seul' }, { v: 'Menu frites + boisson', sup: 200 }] };
 const boisson: Groupe = { cle: 'boisson_menu', titre: 'Boisson', valeurs: [{ v: 'Coca-Cola' }, { v: 'Sprite' }], si: { cle: 'formule', v: 'Menu frites + boisson' } };
 
+const supplements: Groupe = {
+  cle: 'supplements', titre: 'Suppléments', plusieurs: true,
+  valeurs: [{ v: 'Viande en plus', sup: 200 }, { v: 'Cheddar', sup: 100 }, { v: 'Miel', sup: 100 }],
+};
+
 const plat = (p: Partial<Plat> & Pick<Plat, 'id' | 'prix'>): Plat => ({ nom: p.id, choix: [], fenetre_debut: null, fenetre_fin: null, disponible: 1, ...p });
 const carte = new Map<string, Plat>(
   [
     plat({ id: 'kebab', nom: 'Kebab', prix: 800, choix: [sauce, formule, boisson] }),
     plat({ id: 'canette', nom: 'Canette 33 cl', prix: 200 }),
+    plat({ id: 'tacos', nom: 'Tacos', prix: 800, choix: [sauce, supplements] }),
     plat({ id: 'etudiant', prix: 800, fenetre_debut: 660, fenetre_fin: 810 }),
     plat({ id: 'rupture', prix: 400, disponible: 0 }),
   ].map((p) => [p.id, p]),
@@ -58,6 +64,21 @@ describe('calculer', () => {
     expect(calculer([{ plat: 'rupture', qte: 1 }], carte, MIDI)).toMatchObject({ ok: false, erreur: 'indisponible:rupture' });
     expect(calculer([{ plat: 'etudiant', qte: 1 }], carte, MIDI)).toMatchObject({ ok: true });
     expect(calculer([{ plat: 'etudiant', qte: 1 }], carte, 20 * 60)).toMatchObject({ ok: false, erreur: 'hors_fenetre:etudiant' });
+  });
+
+  it('additionne les suppléments cochés, aucun compris', () => {
+    const r = calculer([{ plat: 'tacos', qte: 2, choix: { sauce: 'Blanche', supplements: ['Viande en plus', 'Miel'] } }], carte, MIDI);
+    expect(r).toMatchObject({ ok: true, total: 2 * 1100 });
+    if (r.ok) expect(r.lignes[0].options).toContainEqual({ titre: 'Suppléments', v: 'Viande en plus, Miel' });
+    const sans = calculer([{ plat: 'tacos', qte: 1, choix: { sauce: 'Blanche' } }], carte, MIDI);
+    expect(sans).toMatchObject({ ok: true, total: 800 });
+    if (sans.ok) expect(sans.lignes[0].options).toEqual([{ titre: 'Sauce', v: 'Blanche' }]);
+  });
+
+  it('refuse un supplément hors carte, en double, ou envoyé comme texte', () => {
+    for (const supplements of [['Caviar'], ['Miel', 'Miel'], 'Miel']) {
+      expect(calculer([{ plat: 'tacos', qte: 1, choix: { sauce: 'Blanche', supplements } } as never], carte, MIDI)).toMatchObject({ ok: false });
+    }
   });
 
   it('refuse les quantités absurdes et le panier vide', () => {

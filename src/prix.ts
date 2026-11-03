@@ -8,12 +8,14 @@
    ========================================================= */
 
 /* Un groupe d'options. `sup` : supplément en centimes. `si` : le groupe ne
-   s'applique que si un autre choix a cette valeur (la boisson du menu). */
+   s'applique que si un autre choix a cette valeur (la boisson du menu).
+   `plusieurs` : des cases à cocher (les suppléments du tacos), aucune ou plusieurs. */
 export type Groupe = {
   cle: string;
   titre: string;
   valeurs: { v: string; sup?: number }[];
   si?: { cle: string; v: string };
+  plusieurs?: boolean;
 };
 
 export type Plat = {
@@ -26,7 +28,7 @@ export type Plat = {
   disponible: number;
 };
 
-export type LigneDemandee = { plat: string; qte: number; choix?: Record<string, string> };
+export type LigneDemandee = { plat: string; qte: number; choix?: Record<string, string | string[]> };
 export type LigneCalculee = { plat: string; nom: string; qte: number; options: { titre: string; v: string }[]; unitaire: number; montant: number };
 export type Calcul = { ok: true; lignes: LigneCalculee[]; total: number } | { ok: false; erreur: string };
 
@@ -59,6 +61,16 @@ export function calculer(demande: unknown, carte: Map<string, Plat>, minutes: nu
     for (const g of plat.choix) {
       /* La boisson envoyée avec un sandwich « Seul » est ignorée, pas refusée. */
       if (g.si && choix[g.si.cle] !== g.si.v) continue;
+      if (g.plusieurs) {
+        /* Absent ou vide : pas de supplément. Une valeur en double est refusée, pas comptée deux fois. */
+        const cochees = choix[g.cle] ?? [];
+        if (!Array.isArray(cochees) || new Set(cochees).size !== cochees.length) return { ok: false, erreur: `choix:${plat.id}:${g.cle}` };
+        const valeurs = cochees.map((v) => g.valeurs.find((x) => x.v === v));
+        if (valeurs.some((x) => !x)) return { ok: false, erreur: `choix:${plat.id}:${g.cle}` };
+        for (const x of valeurs) unitaire += x!.sup ?? 0;
+        if (valeurs.length) options.push({ titre: g.titre, v: valeurs.map((x) => x!.v).join(', ') });
+        continue;
+      }
       const valeur = g.valeurs.find((x) => x.v === choix[g.cle]);
       if (!valeur) return { ok: false, erreur: `choix_manquant:${plat.id}:${g.cle}` };
       unitaire += valeur.sup ?? 0;
