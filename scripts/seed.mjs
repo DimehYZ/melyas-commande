@@ -60,9 +60,10 @@ for (const h of carte.horaires) {
 for (const p of carte.plats) {
   const choix = JSON.stringify((p.choix ?? []).map(groupe));
   const [fd, ff] = p.fenetre ? p.fenetre.map(minutes) : [null, null];
+  const promo = p.promo ? JSON.stringify(p.promo) : null;
   sql.push(
-    `INSERT INTO plats (restaurant_id, id, nom, prix, choix, fenetre_debut, fenetre_fin) VALUES (` +
-      [id, q(p.id), q(p.nom), centimes(p.prix), q(choix), q(fd), q(ff)].join(', ') +
+    `INSERT INTO plats (restaurant_id, id, nom, prix, choix, fenetre_debut, fenetre_fin, promo) VALUES (` +
+      [id, q(p.id), q(p.nom), centimes(p.prix), q(choix), q(fd), q(ff), q(promo)].join(', ') +
       `);`,
   );
 }

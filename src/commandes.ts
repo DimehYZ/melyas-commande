@@ -138,10 +138,13 @@ export async function creerCommande(req: Request, env: Env, ctx: ExecutionContex
   const creneau = verifierCreneau(maintenant, pour, planning);
   if (!creneau.ok) return refus(creneau.raison, 409, cors);
 
-  /* Le total, recalculé depuis la carte. Le menu étudiant se juge à l'heure de préparation. */
-  const carte = new Map((plats.results as Plat[]).map((p) => [p.id, { ...p, choix: JSON.parse(p.choix as unknown as string) }]));
-  const minutes = heureLocale(creneau.pour ?? maintenant, resto.fuseau).minutes;
-  const calcul = calculer(corps.lignes, carte, minutes);
+  /* Le total, recalculé depuis la carte. Le menu étudiant et les promos du jour se jugent
+     à l'heure de préparation : commandé mardi soir pour mercredi midi, le menu est en promo. */
+  const carte = new Map((plats.results as Plat[]).map((p) => [p.id, {
+    ...p, choix: JSON.parse(p.choix as unknown as string), promo: p.promo ? JSON.parse(p.promo as unknown as string) : null,
+  }]));
+  const prepa = heureLocale(creneau.pour ?? maintenant, resto.fuseau);
+  const calcul = calculer(corps.lignes, carte, { minutes: prepa.minutes, jour: prepa.jour });
   if (!calcul.ok) return refus('panier', 409, cors, calcul.erreur);
 
   /* Le numéro suit le dernier du restaurant, dans la même requête : deux commandes

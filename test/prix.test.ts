@@ -13,14 +13,15 @@ const supplements: Groupe = {
 const plat = (p: Partial<Plat> & Pick<Plat, 'id' | 'prix'>): Plat => ({ nom: p.id, choix: [], fenetre_debut: null, fenetre_fin: null, disponible: 1, ...p });
 const carte = new Map<string, Plat>(
   [
-    plat({ id: 'kebab', nom: 'Kebab', prix: 800, choix: [sauce, formule, boisson] }),
+    plat({ id: 'kebab', nom: 'Kebab', prix: 800, choix: [sauce, formule, boisson, supplements],
+      promo: { titre: 'Mercredi', jours: [3], remise: 50, si: { cle: 'formule', v: 'Menu frites + boisson' } } }),
     plat({ id: 'canette', nom: 'Canette 33 cl', prix: 200 }),
     plat({ id: 'tacos', nom: 'Tacos', prix: 800, choix: [sauce, supplements] }),
     plat({ id: 'etudiant', prix: 800, fenetre_debut: 660, fenetre_fin: 810 }),
     plat({ id: 'rupture', prix: 400, disponible: 0 }),
   ].map((p) => [p.id, p]),
 );
-const MIDI = 12 * 60;
+const MIDI = { minutes: 12 * 60, jour: 1 }; // un lundi midi
 
 describe('calculer', () => {
   it('recalcule le total depuis la carte, suppléments compris', () => {
@@ -63,7 +64,7 @@ describe('calculer', () => {
     expect(calculer([{ plat: 'pizza', qte: 1 }], carte, MIDI)).toMatchObject({ ok: false, erreur: 'plat_inconnu' });
     expect(calculer([{ plat: 'rupture', qte: 1 }], carte, MIDI)).toMatchObject({ ok: false, erreur: 'indisponible:rupture' });
     expect(calculer([{ plat: 'etudiant', qte: 1 }], carte, MIDI)).toMatchObject({ ok: true });
-    expect(calculer([{ plat: 'etudiant', qte: 1 }], carte, 20 * 60)).toMatchObject({ ok: false, erreur: 'hors_fenetre:etudiant' });
+    expect(calculer([{ plat: 'etudiant', qte: 1 }], carte, { minutes: 20 * 60, jour: 1 })).toMatchObject({ ok: false, erreur: 'hors_fenetre:etudiant' });
   });
 
   it('additionne les suppléments cochés, aucun compris', () => {
@@ -87,5 +88,29 @@ describe('calculer', () => {
     }
     expect(calculer([], carte, MIDI)).toMatchObject({ ok: false, erreur: 'panier_vide' });
     expect(calculer('n’importe quoi', carte, MIDI)).toMatchObject({ ok: false });
+  });
+
+  describe('promo du mercredi', () => {
+    const MERCREDI = { minutes: 12 * 60, jour: 3 };
+    const menu = { sauce: 'Blanche', formule: 'Menu frites + boisson', boisson_menu: 'Sprite' };
+
+    it('met le menu kebab à moitié prix le mercredi seulement', () => {
+      const r = calculer([{ plat: 'kebab', qte: 2, choix: menu }], carte, MERCREDI);
+      expect(r).toMatchObject({ ok: true, total: 2 * 500 });
+      if (r.ok) expect(r.lignes[0].options).toContainEqual({ titre: 'Promo', v: 'Mercredi -50 %' });
+      expect(calculer([{ plat: 'kebab', qte: 1, choix: menu }], carte, MIDI)).toMatchObject({ ok: true, total: 1000 });
+    });
+
+    it('laisse le kebab seul et les autres plats au plein tarif', () => {
+      const seul = calculer([{ plat: 'kebab', qte: 1, choix: { sauce: 'Blanche', formule: 'Seul' } }], carte, MERCREDI);
+      expect(seul).toMatchObject({ ok: true, total: 800 });
+      if (seul.ok) expect(seul.lignes[0].options.map((o) => o.titre)).not.toContain('Promo');
+      expect(calculer([{ plat: 'canette', qte: 1 }], carte, MERCREDI)).toMatchObject({ ok: true, total: 200 });
+    });
+
+    it('ne remise pas les suppléments', () => {
+      const r = calculer([{ plat: 'kebab', qte: 1, choix: { ...menu, supplements: ['Cheddar'] } }], carte, MERCREDI);
+      expect(r).toMatchObject({ ok: true, total: 500 + 100 });
+    });
   });
 });

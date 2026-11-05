@@ -1,5 +1,5 @@
 {
-  "_source": "Carte reprise de melyas web/components/demos/kebab-charte.ts (affiches du patron, 2026-09-26). Prix en euros ici, convertis en centimes par scripts/seed.mjs. Mise à jour du 2026-11-03 (messages et affiches du patron) : tacos 8 € / maxi 12 € (le prix du kebab maxi, corrigé le soir même), leurs viandes et suppléments, kebab et galette maxi, burgers, paninis, tenders, falafels, frites ; suppléments sur tous les sandwichs. Panini viande seul : 8 € PROVISOIRES, l'affiche ne donne que le menu (10 €). La bière n'est pas vendue en ligne (décision du patron, 2026-09-27).",
+  "_source": "Carte reprise de melyas web/components/demos/kebab-charte.ts (affiches du patron, 2026-09-26). Prix en euros ici, convertis en centimes par scripts/seed.mjs. Mise à jour du 2026-11-03 (messages et affiches du patron) : tacos 8 € / maxi 12 € (le prix du kebab maxi, corrigé le soir même), leurs viandes et suppléments, kebab et galette maxi, burgers, paninis, tenders, falafels, frites ; suppléments sur tous les sandwichs. Panini viande seul : 8 € PROVISOIRES, l'affiche ne donne que le menu (10 €). La bière n'est pas vendue en ligne (décision du patron, 2026-09-27). Le 2026-11-04 : menu kebab à -50 % le mercredi (5 € au lieu de 10 €, suppléments au plein tarif), jugé le jour de préparation.",
 
   "restaurant": {
     "id": "kebab-jaune",
@@ -30,7 +30,8 @@
   },
 
   "plats": [
-    { "id": "kebab", "nom": "Kebab", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
+    { "id": "kebab", "nom": "Kebab", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"],
+      "promo": { "titre": "Mercredi", "jours": [3], "remise": 50, "si": { "cle": "formule", "v": "Menu frites + boisson" } } },
     { "id": "kebab-maxi", "nom": "Kebab maxi", "prix": 12, "choix": ["sauce", "supplements", "formule_maxi", "boisson_menu"] },
     { "id": "galette", "nom": "Galette", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
     { "id": "galette-maxi", "nom": "Galette maxi", "prix": 12, "choix": ["sauce", "supplements", "formule_maxi", "boisson_menu"] },

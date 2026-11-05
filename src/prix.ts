@@ -18,6 +18,12 @@ export type Groupe = {
   plusieurs?: boolean;
 };
 
+/* Une remise certains jours, jugée le jour où la commande est PRÉPARÉE (heure locale).
+   `jours` : 0 = dimanche. `si` : seulement pour ce choix (le menu, pas le sandwich seul).
+   `remise` : en pourcentage, sur le prix du plat et de sa formule ; les suppléments
+   cochés restent au plein tarif. */
+export type Promo = { titre: string; jours: number[]; remise: number; si?: { cle: string; v: string } };
+
 export type Plat = {
   id: string;
   nom: string;
@@ -26,7 +32,11 @@ export type Plat = {
   fenetre_debut: number | null;
   fenetre_fin: number | null;
   disponible: number;
+  promo?: Promo | null;
 };
+
+/** Le moment où la commande sera préparée, à l'heure locale du restaurant. */
+export type Quand = { minutes: number; jour: number };
 
 export type LigneDemandee = { plat: string; qte: number; choix?: Record<string, string | string[]> };
 export type LigneCalculee = { plat: string; nom: string; qte: number; options: { titre: string; v: string }[]; unitaire: number; montant: number };
@@ -35,8 +45,9 @@ export type Calcul = { ok: true; lignes: LigneCalculee[]; total: number } | { ok
 export const MAX_LIGNES = 30;
 export const MAX_QTE = 20;
 
-/** `minutes` : l'heure locale à laquelle la commande sera préparée (fenêtre du menu étudiant). */
-export function calculer(demande: unknown, carte: Map<string, Plat>, minutes: number): Calcul {
+/** `quand` : l'heure et le jour locaux de préparation (fenêtre du menu étudiant, promos du jour). */
+export function calculer(demande: unknown, carte: Map<string, Plat>, quand: Quand): Calcul {
+  const { minutes, jour } = quand;
   if (!Array.isArray(demande) || demande.length === 0) return { ok: false, erreur: 'panier_vide' };
   if (demande.length > MAX_LIGNES) return { ok: false, erreur: 'panier_trop_grand' };
 
@@ -57,6 +68,7 @@ export function calculer(demande: unknown, carte: Map<string, Plat>, minutes: nu
     if (Object.keys(choix).some((k) => !connues.has(k))) return { ok: false, erreur: `choix_inconnu:${plat.id}` };
 
     let unitaire = plat.prix;
+    let cases = 0; // les suppléments cochés : jamais remisés
     const options: LigneCalculee['options'] = [];
     for (const g of plat.choix) {
       /* La boisson envoyée avec un sandwich « Seul » est ignorée, pas refusée. */
@@ -67,7 +79,7 @@ export function calculer(demande: unknown, carte: Map<string, Plat>, minutes: nu
         if (!Array.isArray(cochees) || new Set(cochees).size !== cochees.length) return { ok: false, erreur: `choix:${plat.id}:${g.cle}` };
         const valeurs = cochees.map((v) => g.valeurs.find((x) => x.v === v));
         if (valeurs.some((x) => !x)) return { ok: false, erreur: `choix:${plat.id}:${g.cle}` };
-        for (const x of valeurs) unitaire += x!.sup ?? 0;
+        for (const x of valeurs) cases += x!.sup ?? 0;
         if (valeurs.length) options.push({ titre: g.titre, v: valeurs.map((x) => x!.v).join(', ') });
         continue;
       }
@@ -76,6 +88,12 @@ export function calculer(demande: unknown, carte: Map<string, Plat>, minutes: nu
       unitaire += valeur.sup ?? 0;
       options.push({ titre: g.titre, v: valeur.v });
     }
+    const promo = plat.promo;
+    if (promo && promo.jours.includes(jour) && (!promo.si || choix[promo.si.cle] === promo.si.v)) {
+      unitaire -= Math.round((unitaire * promo.remise) / 100);
+      options.push({ titre: 'Promo', v: `${promo.titre} -${promo.remise} %` });
+    }
+    unitaire += cases;
     lignes.push({ plat: plat.id, nom: plat.nom, qte, options, unitaire, montant: unitaire * qte });
   }
   return { ok: true, lignes, total: lignes.reduce((s, l) => s + l.montant, 0) };
