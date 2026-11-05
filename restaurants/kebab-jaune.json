@@ -1,5 +1,5 @@
 {
-  "_source": "Carte reprise de melyas web/components/demos/kebab-charte.ts (affiches du patron, 2026-09-26). Prix en euros ici, convertis en centimes par scripts/seed.mjs. Mise à jour du 2026-11-03 (messages et affiches du patron) : tacos 8 € / maxi 12 € (le prix du kebab maxi, corrigé le soir même), leurs viandes et suppléments, kebab et galette maxi, burgers, paninis, tenders, falafels, frites ; suppléments sur tous les sandwichs. Panini viande seul : 8 € PROVISOIRES, l'affiche ne donne que le menu (10 €). La bière n'est pas vendue en ligne (décision du patron, 2026-09-27). Le 2026-11-04 : menu kebab à -50 % le mercredi (5 € au lieu de 10 €, suppléments au plein tarif), jugé le jour de préparation.",
+  "_source": "Carte reprise de melyas web/components/demos/kebab-charte.ts (affiches du patron, 2026-09-26). Prix en euros ici, convertis en centimes par scripts/seed.mjs. Mise à jour du 2026-11-03 (messages et affiches du patron) : tacos 8 € / maxi 12 € (le prix du kebab maxi, corrigé le soir même), leurs viandes et suppléments, kebab et galette maxi, burgers, paninis, tenders, falafels, frites ; suppléments sur tous les sandwichs. Panini viande seul : 8 € PROVISOIRES, l'affiche ne donne que le menu (10 €). La bière n'est pas vendue en ligne (décision du patron, 2026-09-27). Le 2026-11-04 : menu kebab à -50 % le mercredi (5 € au lieu de 10 €, suppléments au plein tarif), jugé le jour de préparation. Le 2026-11-05 : boissons reprises des photos du frigo (16 canettes, 50 cl : Cristaline, Vals, Badoit ; grandes : Coca-Cola, Lipton, Badoit ; pas de Red Bull), toutes au choix dans les menus ; crudités retirables plat par plat.",
 
   "restaurant": {
     "id": "kebab-jaune",
@@ -17,65 +17,60 @@
     "sauce": { "titre": "Sauce", "valeurs": ["Blanche", "Algérienne", "Barbecue", "Ketchup", "Moutarde", "Piquante"] },
     "viande": { "titre": "Viande", "valeurs": ["Viande kebab", "Kofte", "Escalope"] },
     "viande_tacos": { "cle": "viande", "titre": "Viande", "valeurs": ["Kebab", "Tenders", "Cordon bleu", "Steak", "Nuggets", "Kofte", "Falafels", "Soudjouk (chorizo)"] },
+    "crudites_sto": { "cle": "crudites", "titre": "Crudités", "plusieurs": true, "valeurs": ["Sans salade", "Sans tomates", "Sans oignons"] },
+    "crudites_st": { "cle": "crudites", "titre": "Crudités", "plusieurs": true, "valeurs": ["Sans salade", "Sans tomates"] },
+    "crudites_stc": { "cle": "crudites", "titre": "Crudités", "plusieurs": true, "valeurs": ["Sans salade", "Sans tomates", "Sans chou rouge"] },
+    "crudites_berliner": { "cle": "crudites", "titre": "Crudités", "plusieurs": true, "valeurs": ["Sans salade", "Sans tomates", "Sans oignons", "Sans chou rouge", "Sans maïs"] },
     "supplements": { "titre": "Suppléments", "plusieurs": true, "valeurs": [{ "v": "Viande en plus", "sup": 2 }, { "v": "Chèvre", "sup": 1 }, { "v": "Cheddar", "sup": 1 }, { "v": "Feta", "sup": 1 }, { "v": "Légumes", "sup": 1 }, { "v": "Miel", "sup": 1 }] },
     "steak_chicken": { "titre": "Steak ou chicken", "valeurs": ["Steak", "Chicken"] },
     "formule": { "titre": "Formule", "valeurs": [{ "v": "Seul" }, { "v": "Menu frites + boisson", "sup": 2 }] },
     "formule_maxi": { "cle": "formule", "titre": "Formule", "valeurs": [{ "v": "Seul" }, { "v": "Menu frites + boisson", "sup": 3 }] },
-    "boisson_menu": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite"], "si": { "cle": "formule", "v": "Menu frites + boisson" } },
-    "boisson_enfant": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite"] },
+    "boisson_menu": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Coca-Cola zéro", "Coca-Cola cherry", "Fanta orange", "Fanta citron frappé", "Fanta mangue fruit du dragon", "Sprite", "7Up mojito", "Orangina", "Oasis tropical", "Oasis pomme poire", "Oasis pomme cassis framboise", "Schweppes agrumes", "Lipton Ice Tea pêche", "Tropico", "Perrier"], "si": { "cle": "formule", "v": "Menu frites + boisson" } },
+    "boisson_enfant": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Coca-Cola zéro", "Coca-Cola cherry", "Fanta orange", "Fanta citron frappé", "Fanta mangue fruit du dragon", "Sprite", "7Up mojito", "Orangina", "Oasis tropical", "Oasis pomme poire", "Oasis pomme cassis framboise", "Schweppes agrumes", "Lipton Ice Tea pêche", "Tropico", "Perrier"] },
     "type_etudiant": { "titre": "Kebab ou tacos", "valeurs": ["Kebab", "Tacos"] },
-    "canette": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite"] },
-    "bouteille_50": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Fanta", "Sprite", "Ice Tea pêche"] },
-    "grande_bouteille": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Coca-Cola zéro", "Fanta", "Sprite", "Ice Tea pêche", "Evian", "Perrier"] }
+    "canette": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Coca-Cola zéro", "Coca-Cola cherry", "Fanta orange", "Fanta citron frappé", "Fanta mangue fruit du dragon", "Sprite", "7Up mojito", "Orangina", "Oasis tropical", "Oasis pomme poire", "Oasis pomme cassis framboise", "Schweppes agrumes", "Lipton Ice Tea pêche", "Tropico", "Perrier"] },
+    "bouteille_50": { "titre": "Boisson", "valeurs": ["Cristaline", "Vals", "Badoit"] },
+    "grande_bouteille": { "titre": "Boisson", "valeurs": ["Coca-Cola", "Lipton Ice Tea pêche", "Badoit"] }
   },
 
   "plats": [
-    { "id": "kebab", "nom": "Kebab", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"],
-      "promo": { "titre": "Mercredi", "jours": [3], "remise": 50, "si": { "cle": "formule", "v": "Menu frites + boisson" } } },
-    { "id": "kebab-maxi", "nom": "Kebab maxi", "prix": 12, "choix": ["sauce", "supplements", "formule_maxi", "boisson_menu"] },
-    { "id": "galette", "nom": "Galette", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
-    { "id": "galette-maxi", "nom": "Galette maxi", "prix": 12, "choix": ["sauce", "supplements", "formule_maxi", "boisson_menu"] },
+    { "id": "kebab", "nom": "Kebab", "prix": 8, "choix": ["sauce", "crudites_sto", "supplements", "formule", "boisson_menu"], "promo": { "titre": "Mercredi", "jours": [3], "remise": 50, "si": { "cle": "formule", "v": "Menu frites + boisson" } } },
+    { "id": "kebab-maxi", "nom": "Kebab maxi", "prix": 12, "choix": ["sauce", "crudites_stc", "supplements", "formule_maxi", "boisson_menu"] },
+    { "id": "galette", "nom": "Galette", "prix": 8, "choix": ["sauce", "crudites_st", "supplements", "formule", "boisson_menu"] },
+    { "id": "galette-maxi", "nom": "Galette maxi", "prix": 12, "choix": ["sauce", "crudites_st", "supplements", "formule_maxi", "boisson_menu"] },
     { "id": "tacos", "nom": "Tacos", "prix": 8, "choix": ["viande_tacos", "sauce", "supplements", "formule", "boisson_menu"] },
     { "id": "tacos-maxi", "nom": "Tacos maxi", "prix": 12, "choix": ["viande_tacos", "sauce", "supplements", "formule_maxi", "boisson_menu"] },
-    { "id": "kofte", "nom": "Kofte", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
-    { "id": "americain", "nom": "Américain", "prix": 8, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
-    { "id": "berliner", "nom": "Kebab Berliner", "prix": 9, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
+    { "id": "kofte", "nom": "Kofte", "prix": 8, "choix": ["sauce", "crudites_sto", "supplements", "formule", "boisson_menu"] },
+    { "id": "americain", "nom": "Américain", "prix": 8, "choix": ["sauce", "crudites_st", "supplements", "formule", "boisson_menu"] },
+    { "id": "berliner", "nom": "Kebab Berliner", "prix": 9, "choix": ["sauce", "crudites_berliner", "supplements", "formule", "boisson_menu"] },
     { "id": "americain-cheese", "nom": "Américain cheese", "prix": 9, "choix": ["sauce", "supplements", "formule", "boisson_menu"] },
-    { "id": "hamburger", "nom": "Hamburger", "prix": 8, "choix": ["steak_chicken", "supplements", "formule", "boisson_menu"] },
+    { "id": "hamburger", "nom": "Hamburger", "prix": 8, "choix": ["steak_chicken", "crudites_sto", "supplements", "formule", "boisson_menu"] },
     { "id": "panini-viande", "nom": "Panini viande", "prix": 8, "choix": ["supplements", "formule", "boisson_menu"] },
     { "id": "panini-fromage", "nom": "Panini double fromage", "prix": 6, "choix": ["supplements"] },
-    { "id": "falafels", "nom": "Sandwich végétarien au falafels", "prix": 7, "choix": ["sauce", "supplements"] },
+    { "id": "falafels", "nom": "Sandwich végétarien au falafels", "prix": 7, "choix": ["sauce", "crudites_stc", "supplements"] },
     { "id": "etudiant", "nom": "Menu étudiant", "prix": 8, "choix": ["type_etudiant", "viande", "sauce"], "fenetre": ["11:00", "13:30"] },
-
-    { "id": "assiette-kebab", "nom": "Assiette kebab", "prix": 12, "choix": ["sauce"] },
-    { "id": "assiette-kofte", "nom": "Assiette kofte", "prix": 14, "choix": ["sauce"] },
-    { "id": "assiette-escalopes", "nom": "Assiette escalopes", "prix": 14, "choix": ["sauce"] },
-
+    { "id": "assiette-kebab", "nom": "Assiette kebab", "prix": 12, "choix": ["sauce", "crudites_sto"] },
+    { "id": "assiette-kofte", "nom": "Assiette kofte", "prix": 14, "choix": ["sauce", "crudites_sto"] },
+    { "id": "assiette-escalopes", "nom": "Assiette escalopes", "prix": 14, "choix": ["sauce", "crudites_sto"] },
     { "id": "riz-crousty", "nom": "Riz crousty", "prix": 8 },
     { "id": "boulgour-crousty", "nom": "Boulgour crousty", "prix": 8 },
     { "id": "pates-crousty", "nom": "Pâtes crousty", "prix": 8 },
     { "id": "bol-riz", "nom": "Bol de riz", "prix": 4 },
     { "id": "bol-boulgour", "nom": "Bol de boulgour", "prix": 4 },
     { "id": "bol-pates", "nom": "Bol de pâtes", "prix": 4 },
-
     { "id": "bol-frites-tenders", "nom": "Bol frites tenders sauce", "prix": 10, "choix": ["sauce"] },
     { "id": "tenders", "nom": "3 tenders", "prix": 5, "choix": ["sauce"] },
     { "id": "frites-petite", "nom": "Frites petite", "prix": 2 },
     { "id": "frites-moyenne", "nom": "Frites moyenne", "prix": 3 },
     { "id": "frites-grande", "nom": "Frites grande", "prix": 4 },
-
     { "id": "salade-feta", "nom": "Salade feta", "prix": 5 },
     { "id": "salade-thon", "nom": "Salade thon", "prix": 5 },
-
     { "id": "menu-enfant", "nom": "Menu enfant", "prix": 7.5, "choix": ["boisson_enfant"] },
-
     { "id": "tiramisu", "nom": "Tiramisu", "prix": 4 },
     { "id": "tarte-daim", "nom": "Tarte au Daim", "prix": 4 },
     { "id": "fondant", "nom": "Fondant au chocolat", "prix": 4 },
-
     { "id": "canette", "nom": "Canette 33 cl", "prix": 2, "choix": ["canette"] },
     { "id": "bouteille-50", "nom": "Bouteille 50 cl", "prix": 2.5, "choix": ["bouteille_50"] },
-    { "id": "redbull", "nom": "Red Bull", "prix": 2.5 },
     { "id": "grande-bouteille", "nom": "Grande bouteille", "prix": 4, "choix": ["grande_bouteille"] }
   ]
 }
